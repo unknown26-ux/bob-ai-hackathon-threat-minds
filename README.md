@@ -10,8 +10,8 @@
 |---|---|
 | **Team Name** | Threat Minds |
 | **Track** | AI |
-| **Team Lead** | Threat Minds Lead |
-| **Members** | Threat Minds Team |
+| **Team Lead** | Tamanna Bhura |
+| **Members** | Keshvi Vishal Kapadia, Ashvi Antala, Niksha Garnara |
 
 ---
 
