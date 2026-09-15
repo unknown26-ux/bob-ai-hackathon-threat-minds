@@ -1,4 +1,3 @@
 NOT DEPLOYED
 
-ThreatLens runs locally only for this hackathon submission.
-See docs/setup-guide.md for exact run instructions.
+
