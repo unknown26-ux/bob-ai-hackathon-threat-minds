@@ -1,79 +1,159 @@
 # Setup Guide
 
-> **This file is read by the automated evaluation pipeline. Be precise and complete.**
+> Tested on Windows 10/11 with Python 3.13 and Node.js 18+.
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
+- [ ] Python 3.11 or later (`python --version`)
+- [ ] Node.js 18 or later (`node --version`)
+- [ ] npm 8 or later (`npm --version`)
+- [ ] Git (`git --version`)
 
-- [ ] [e.g., Python 3.11+]
-- [ ] [e.g., Node.js 18+]
-- [ ] [e.g., Docker Desktop]
-- [ ] [e.g., An IBM Cloud account with watsonx.ai access]
+No Docker, no PostgreSQL, no cloud accounts required.
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and fill in the values:
+ThreatLens runs without any required environment variables. All defaults work out of the box. For optional customisation:
 
-```bash
-cp .env.example .env
+```cmd
+copy src\.env.example src\backend\.env
 ```
 
-| Variable | Description | Required |
+| Variable | Description | Default |
 |---|---|---|
-| `WATSONX_API_KEY` | Your IBM watsonx.ai API key | Yes |
-| `WATSONX_PROJECT_ID` | Your watsonx.ai project ID | Yes |
-| `DATABASE_URL` | PostgreSQL connection string | Yes |
-| `SLACK_WEBHOOK_URL` | Slack webhook for alerts | No |
+| `APP_PORT` | Backend port | `8000` |
+| `DATABASE_PATH` | SQLite file path | `threatlens.db` (in `src/backend/`) |
 
-## Installation
+## Backend — Installation & Startup
 
-```bash
-# 1. Clone the repository
-git clone https://github.com/[your-org]/[your-repo].git
-cd [your-repo]
+```cmd
+cd src\backend
 
-# 2. Install backend dependencies
-[your command — e.g.: pip install -r requirements.txt]
+python -m venv .venv
 
-# 3. Install frontend dependencies (if applicable)
-[your command — e.g.: cd frontend && npm install]
+.venv\Scripts\activate
 
-# 4. Set up the database (if applicable)
-[your command — e.g.: python manage.py migrate]
+pip install -r requirements.txt
+
+uvicorn main:app --reload --port 8000
 ```
 
-## Running the Application
+The backend will start at `http://localhost:8000`.
 
-```bash
-# Start the backend
-[your command — e.g.: uvicorn app.main:app --reload]
-
-# Start the frontend (in a separate terminal, if applicable)
-[your command — e.g.: cd frontend && npm run dev]
+Verify it is running:
+```cmd
+curl http://localhost:8000/api/health
 ```
 
-The application will be available at: `http://localhost:[PORT]`
-
-## Running Tests
-
-```bash
-[your test command — e.g.: pytest tests/ -v]
+Expected response:
+```json
+{"status": "healthy", "service": "ThreatLens"}
 ```
 
-## Quick Demo (Optional)
+## Frontend — Installation & Startup
 
-If you have a demo script or sample data to showcase the project quickly:
+Open a **second** terminal window:
 
-```bash
-[e.g.: python demo/seed_demo_data.py]
-[e.g.: open http://localhost:8000/demo]
+```cmd
+cd src\frontend
+
+npm install
+
+npm run dev
 ```
+
+The dashboard will be available at `http://localhost:5173`.
+
+## Loading Demo Data
+
+1. Open `http://localhost:5173` in your browser
+2. Click **⚡ Load Demo Data**
+3. The pipeline runs: 25 alerts → 8 incidents → scored, MITRE-mapped, BLUF-generated
+4. The dashboard will show the incident table with the CRITICAL incident at the top
+
+Alternatively, via the API:
+```cmd
+curl -X POST http://localhost:8000/api/demo/seed
+```
+
+## Verifying the Full Pipeline
+
+```cmd
+:: Health check
+curl http://localhost:8000/api/health
+
+:: Seed demo data
+curl -X POST http://localhost:8000/api/demo/seed
+
+:: List all alerts
+curl http://localhost:8000/api/alerts
+
+:: List incidents (sorted by risk desc)
+curl http://localhost:8000/api/incidents
+
+:: Get critical incident detail (ID 1 after first seed)
+curl http://localhost:8000/api/incidents/1
+```
+
+## MCP Server (IBM Bob Integration)
+
+With the backend running, configure IBM Bob to use ThreatLens:
+
+Create `.bob/mcp.json` in your workspace root:
+```json
+{
+  "mcpServers": {
+    "threatlens": {
+      "command": "python",
+      "args": ["src/mcp_server/server.py"],
+      "cwd": "."
+    }
+  }
+}
+```
+
+The MCP server uses the same virtual environment as the backend. Make sure `src\backend\.venv\Scripts\python.exe` is on your PATH, or use the full path:
+```json
+{
+  "mcpServers": {
+    "threatlens": {
+      "command": "src\\backend\\.venv\\Scripts\\python.exe",
+      "args": ["src/mcp_server/server.py"]
+    }
+  }
+}
+```
+
+Then in Bob, ask:
+- *"What is the most dangerous incident right now?"*
+- *"Investigate incident 1"*
+- *"Give me a BLUF for the critical incident"*
+
+## Running Backend Tests
+
+```cmd
+cd src\backend
+.venv\Scripts\python.exe test_api.py
+```
+
+Expected output: `ALL TESTS PASSED`
+
+## Frontend Production Build
+
+```cmd
+cd src\frontend
+npm run build
+```
+
+Output: `dist/` directory ready for static hosting.
 
 ## Troubleshooting
 
 | Issue | Solution |
 |---|---|
-| [e.g., `ModuleNotFoundError`] | [e.g., Run `pip install -r requirements.txt` again] |
-| [e.g., Database connection refused] | [e.g., Ensure PostgreSQL is running: `docker compose up db`] |
-| [e.g., watsonx.ai 401 error] | [e.g., Check `WATSONX_API_KEY` in your `.env` file] |
+| `ModuleNotFoundError` on uvicorn start | Run `pip install -r requirements.txt` in the `src\backend\` directory |
+| Port 8000 already in use | Change `--port 8000` to another port (e.g., `8001`) and update the Vite proxy in `vite.config.js` |
+| Frontend shows empty incidents | Click **⚡ Load Demo Data** first, or run `POST /api/demo/seed` |
+| MCP server times out in Bob | Ensure the backend is running on port 8000 before using Bob MCP tools |
+| `pydantic_core` import error | Run `pip install --upgrade pydantic` (Python 3.13 requires pydantic 2.11+) |
+| `npm run dev` not found | Run `npm install` in `src\frontend\` first |

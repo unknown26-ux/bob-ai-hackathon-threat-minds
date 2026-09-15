@@ -1,6 +1,6 @@
-# 🚀 [Your Project Title Here]
+# 🔍 ThreatLens
 
-> ⚠️ **Replace everything in `[ ]` brackets with your actual content before submission.**
+> Threat Intelligence Correlation & Alert Prioritisation Assistant
 
 ---
 
@@ -8,36 +8,101 @@
 
 | Field | Value |
 |---|---|
-| **Team Name** | [Your Team Name] |
-| **Track** | [AI / DevOps / Sustainability / Open] |
-| **Team Lead** | [Name] — [email@ibm.com] |
-| **Members** | [Name 1], [Name 2], [Name 3] |
+| **Team Name** | Threat Minds |
+| **Track** | AI |
+| **Team Lead** | Threat Minds Lead |
+| **Members** | Threat Minds Team |
 
 ---
 
 ## 🎯 Problem Statement
 
-> In 2–3 sentences: What problem does your project solve? Who experiences this problem?
-
-[Describe the real-world problem your project addresses. Be specific about who the user is and what pain point they face.]
+Security Operations Centre (SOC) analysts are overwhelmed by thousands of raw alerts per day from SIEM systems, firewalls, and threat intelligence feeds. These alerts arrive in different formats, mostly unrelated on the surface, and require hours of manual investigation to determine which represent genuine threats. Alert fatigue causes real attacks to be missed while analysts waste time on false positives.
 
 ---
 
 ## 💡 Solution
 
-> In 2–3 sentences: What did you build? How does it solve the problem above?
-
-[Describe your solution clearly. Explain the core mechanism — what makes it work.]
+ThreatLens ingests raw security alerts from multiple sources (SIEM, firewall, threat intelligence), normalises them to a common schema, and automatically correlates related alerts into incidents using source IP, indicator overlap, and time-window analysis. Each incident receives a transparent 0–100 risk score, MITRE ATT&CK technique mapping, false-positive classification, and a commander-level BLUF summary — all without external APIs or cloud dependencies. IBM Bob integrates via MCP to let analysts query incidents in natural language.
 
 ---
 
 ## ✨ Key Features
 
-- **Feature 1:** [Brief description — e.g., "Real-time anomaly detection using watsonx.ai"]
-- **Feature 2:** [Brief description]
-- **Feature 3:** [Brief description]
-- **Feature 4:** [Optional]
-- **Feature 5:** [Optional]
+- **Multi-source ingestion & normalisation:** Accepts alerts from SIEM, firewall, and threat-intel feeds; normalises to a common event schema
+- **Deterministic correlation engine:** Groups related alerts into incidents using source IP, indicators, and 10-minute time windows (union-find algorithm)
+- **Transparent risk scoring:** 0–100 risk score with explainable breakdown — severity, volume, threat-intel match, MITRE coverage, FP penalty
+- **MITRE ATT&CK mapping:** Automatically maps alert patterns to T1110, T1046, T1078, T1098, T1059, T1059.001, T1074, and more
+- **BLUF generation:** Commander-level Bottom Line Up Front summaries with evidence, techniques, risk, and recommended actions
+- **IBM Bob / MCP integration:** Five MCP tools let Bob query incidents, investigate details, retrieve MITRE mappings, and generate BLUFs in natural language
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+graph TD
+    subgraph Sources
+        A1[SIEM / Auth Logs]
+        A2[Firewall / Network]
+        A3[Threat Intel Feed]
+    end
+
+    subgraph Backend["FastAPI Backend :8000"]
+        B[Normalizer]
+        C[Correlation Engine]
+        D[FP Classifier]
+        E[MITRE Mapper]
+        F[Risk Scorer]
+        G[BLUF Generator]
+        H[(SQLite DB)]
+        API[REST API]
+    end
+
+    subgraph Frontend["React Dashboard :5173"]
+        UI[SOC Dashboard]
+    end
+
+    MCP[MCP Server]
+    BOB[IBM Bob CLI]
+
+    A1 & A2 & A3 -->|POST /api/demo/seed| B
+    B --> C --> D --> E --> F --> G --> H
+    H --> API --> UI
+    BOB -->|stdio| MCP -->|HTTP| API
+```
+
+---
+
+## 🤖 IBM Bob Integration
+
+ThreatLens includes a dedicated MCP server (`src/mcp_server/server.py`) that exposes five tools to IBM Bob:
+
+| Tool | Description |
+|---|---|
+| `get_priority_incidents` | List highest-risk incidents ordered by score |
+| `get_incident` | Full detail for a specific incident |
+| `investigate_incident` | Structured investigation: IPs, timeline, risk breakdown |
+| `get_mitre_mapping` | MITRE ATT&CK techniques for an incident |
+| `generate_bluf` | Commander-level BLUF summary |
+
+**Bob configuration** (`.bob/mcp.json`):
+```json
+{
+  "mcpServers": {
+    "threatlens": {
+      "command": "python",
+      "args": ["src/mcp_server/server.py"],
+      "cwd": "."
+    }
+  }
+}
+```
+
+**Example Bob queries:**
+- *"What is the most dangerous incident right now?"*
+- *"Investigate incident 1"*
+- *"Give me a commander-level BLUF for the critical incident"*
 
 ---
 
@@ -45,50 +110,43 @@
 
 | Category | Technologies |
 |---|---|
-| **Languages** | [e.g., Python, TypeScript] |
-| **Frameworks** | [e.g., FastAPI, React] |
-| **IBM Technologies** | [e.g., watsonx.ai, IBM Bob, IBM Cloud] |
-| **Databases** | [e.g., PostgreSQL, Redis] |
-| **Other** | [e.g., Docker, GitHub Actions] |
-
----
-
-## 📁 Repository Structure
-
-```
-├── src/                  # All source code
-├── docs/                 # Written documentation
-│   ├── problem-statement.md
-│   ├── solution-overview.md
-│   ├── architecture.md
-│   └── setup-guide.md
-├── demo/                 # Demo artifacts
-│   ├── screenshots/      # App screenshots
-│   └── demo-video-link.txt  # Link to demo video
-├── presentation/         # Slide deck
-└── submission.yaml       # Structured submission metadata
-```
+| **Languages** | Python 3.13, JavaScript (ES2022) |
+| **Backend** | FastAPI 0.115, uvicorn, aiosqlite |
+| **Frontend** | React 19, Vite 8 |
+| **Database** | SQLite (aiosqlite async) |
+| **IBM Technologies** | IBM Bob (MCP integration) |
+| **Data** | Pandas, Pydantic v2 |
+| **Other** | MCP SDK, union-find correlation, MITRE ATT&CK local dataset |
 
 ---
 
 ## ⚡ How to Run
 
-> **Copy these exact steps from your [`docs/setup-guide.md`](docs/setup-guide.md)**
+### Backend
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/[your-repo].git
-cd [your-repo]
+```cmd
+cd src\backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+```
 
-# 2. Install dependencies
-[your install command here]
+### Frontend
 
-# 3. Configure environment
-cp .env.example .env
-# Edit .env with your values
+```cmd
+cd src\frontend
+npm install
+npm run dev
+```
 
-# 4. Run the project
-[your run command here]
+### Load Demo Data
+
+Open `http://localhost:5173` and click **⚡ Load Demo Data**.
+
+Or via API:
+```cmd
+curl -X POST http://localhost:8000/api/demo/seed
 ```
 
 ---
@@ -100,22 +158,19 @@ cp .env.example .env
 | 📹 Demo Video | [See demo/demo-video-link.txt](demo/demo-video-link.txt) |
 | 🌐 Live Demo | [See demo/live-demo-url.txt](demo/live-demo-url.txt) |
 | 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
-| 📊 Presentation | [See presentation/slides.pdf](presentation/) |
 
 ---
 
 ## ⚠️ Known Limitations
 
-> Be honest — judges appreciate transparency over overclaiming.
-
-- [Limitation 1: e.g., "Authentication is mocked — not production-ready"]
-- [Limitation 2: e.g., "Only tested on Chrome"]
-- [Limitation 3: e.g., "Feature X is scaffolded but not fully implemented"]
+- Demo data is simulated — not connected to real SIEM/firewall feeds
+- Threat intelligence list is a small hardcoded set matching the demo scenario
+- MCP server requires the backend to be running on localhost:8000
+- No authentication — intended as a hackathon prototype
+- Frontend tested on Chrome/Edge; mobile layout not optimised
 
 ---
 
 ## 🏅 What We're Most Proud Of
 
-[Tell the judges what part of your submission is strongest and worth paying close attention to.]
-
----
+The **correlation engine + explainable risk scoring pipeline** — 25 raw alerts from three different sources automatically collapse into 8 meaningful incidents with transparent, human-readable scoring breakdowns. The CRITICAL incident (185.22.14.8 → 10.0.0.15) achieves risk 95/100 with 100% confidence by correlating threat-intel, port scan, brute-force, and privilege escalation evidence into a single incident that a human analyst would immediately act on. Every score factor is shown in the UI so analysts understand exactly why something is high-risk.

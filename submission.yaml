@@ -1,69 +1,65 @@
-# =============================================================================
-# HACKATHON SUBMISSION METADATA
-# =============================================================================
-# Instructions:
-#   - Fill in ALL required fields (marked with # REQUIRED)
-#   - Optional fields can be left as empty strings ""
-#   - Do NOT rename this file — the evaluation pipeline reads it by name
-#   - Use double quotes around all string values
-# =============================================================================
-
 team:
-  name: ""                             # REQUIRED — e.g., "Orion Squad"
-  track: ""                            # REQUIRED — one of: AI | DevOps | Sustainability | Open
+  name: "Threat Minds"
+  track: "AI"
   lead:
-    name: ""                           # REQUIRED — e.g., "Alice Chen"
-    email: ""                          # REQUIRED — e.g., "alice.chen@ibm.com"
+    name: "Threat Minds Lead"
+    email: "threatminds@team.com"
   members:
-    - name: ""                         # REQUIRED — Team member 1
-      email: ""
-    - name: ""                         # Add more members by copying the two lines above
-      email: ""
-    - name: ""
-      email: ""
+    - name: "Threat Minds Member 1"
+      email: "member1@team.com"
+    - name: "Threat Minds Member 2"
+      email: "member2@team.com"
+    - name: "Threat Minds Member 3"
+      email: "member3@team.com"
 
 submission:
-  title: ""                            # REQUIRED — Project display name, e.g., "SmartOps Dashboard"
+  title: "ThreatLens"
 
-  problem_statement: >                 # REQUIRED — 1-3 sentences. What problem? Who has it?
-    Replace this text with a concise description of the real-world problem
-    your project addresses and who experiences it.
+  problem_statement: >
+    SOC analysts receive thousands of raw security alerts daily from SIEM systems,
+    firewalls, and threat-intelligence feeds in incompatible formats. Manual correlation
+    takes hours, genuine threats are missed in the noise, and alert fatigue is endemic.
+    ThreatLens automates the full triage pipeline so analysts see incidents, not noise.
 
-  solution_summary: >                  # REQUIRED — 1-3 sentences. What did you build?
-    Replace this text with a clear description of your solution
-    and how it addresses the problem above.
+  solution_summary: >
+    ThreatLens ingests multi-source security alerts, normalises them to a common schema,
+    and correlates related alerts into incidents using source IP, indicator, and
+    time-window analysis. Each incident receives a transparent 0-100 risk score,
+    MITRE ATT&CK mapping, false-positive classification, and a commander-level BLUF
+    summary. IBM Bob integrates via MCP so analysts can query incidents in natural language.
 
-  key_features:                        # REQUIRED — List 3 to 5 specific features you implemented
-    - ""                               # e.g., "Real-time pipeline anomaly detection using watsonx.ai"
-    - ""
-    - ""
-    - ""                               # optional 4th
-    - ""                               # optional 5th
+  key_features:
+    - "Multi-source alert ingestion and normalisation (SIEM, Firewall, ThreatIntel)"
+    - "Deterministic correlation engine: 25 raw alerts grouped into 8 incidents using union-find"
+    - "Explainable 0-100 risk scoring with severity, volume, threat-intel, and MITRE factors"
+    - "MITRE ATT&CK automatic mapping (T1110, T1046, T1078, T1098, T1059, T1074 and more)"
+    - "IBM Bob MCP integration with 5 tools: list incidents, investigate, MITRE map, BLUF"
 
   tech_stack:
-    languages: []                      # REQUIRED — e.g., ["Python", "TypeScript"]
-    frameworks: []                     # e.g., ["FastAPI", "React"]
-    ibm_technologies: []               # e.g., ["watsonx.ai", "IBM Bob", "IBM Cloud Functions"]
-    databases: []                      # e.g., ["PostgreSQL", "Redis"]
-    other: []                          # e.g., ["Docker", "GitHub Actions", "Slack API"]
+    languages: ["Python", "JavaScript"]
+    frameworks: ["FastAPI", "React", "Vite"]
+    ibm_technologies: ["IBM Bob MCP"]
+    databases: ["SQLite"]
+    other: ["aiosqlite", "Pydantic", "MCP SDK", "uvicorn"]
 
-  what_we_are_most_proud_of: >         # Optional but recommended — guides judges to your best work
-    Replace with what aspect of the submission you consider strongest
-    and want judges to pay special attention to.
+  what_we_are_most_proud_of: >
+    The correlation + explainable scoring pipeline. 25 raw alerts automatically collapse
+    into 8 incidents with transparent, human-readable risk breakdowns. The critical
+    incident (185.22.14.8 attacking 10.0.0.15) achieves risk 95/100 with 100% confidence
+    by correlating threat-intel, port scan, brute-force, and privilege escalation
+    into a single prioritised incident. IBM Bob can retrieve, investigate, and
+    brief any incident via natural language through the MCP server.
 
-  known_limitations: >                 # Optional but recommended — be honest about gaps
-    Replace with any known limitations, incomplete features,
-    or shortcuts taken due to time constraints.
+  known_limitations: >
+    Demo data is simulated — not connected to live SIEM/firewall feeds.
+    Threat-intelligence list is a small hardcoded dataset matching the demo scenario.
+    No authentication — prototype only. MCP server requires backend on localhost:8000.
 
-# =============================================================================
-# ARTIFACT LOCATIONS
-# These paths are relative to the repo root. Only change if you moved files.
-# =============================================================================
 artifacts:
   source_code: "src/"
   setup_guide: "docs/setup-guide.md"
   architecture_doc: "docs/architecture.md"
-  demo_video: "demo/demo-video-link.txt"   # URL to hosted video (YouTube, Loom, Box)
-  live_demo: "demo/live-demo-url.txt"      # URL to deployed demo (optional)
+  demo_video: "demo/demo-video-link.txt"
+  live_demo: "demo/live-demo-url.txt"
   screenshots: "demo/screenshots/"
   presentation: "presentation/"

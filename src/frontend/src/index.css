@@ -1,0 +1,168 @@
+/* ThreatLens SOC Dashboard — Styles */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0d1117;
+  --surface:   #161b22;
+  --surface2:  #1c2128;
+  --border:    #30363d;
+  --text:      #e6edf3;
+  --muted:     #8b949e;
+  --accent:    #58a6ff;
+  --critical:  #ef4444;
+  --high:      #f97316;
+  --medium:    #eab308;
+  --low:       #22c55e;
+  --good:      #22c55e;
+}
+
+html, body, #root { height: 100%; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, "Segoe UI", system-ui, sans-serif; font-size: 13px; line-height: 1.5; }
+
+/* ── Layout ─────────────────────────────────────────────────────────── */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 24px; background: var(--surface); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+}
+.header-left { display: flex; flex-direction: column; gap: 2px; }
+.logo { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: -0.5px; }
+.logo-sub { font-size: 11px; color: var(--muted); }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.last-update { font-size: 11px; color: var(--muted); }
+
+.main { flex: 1; padding: 20px 24px; display: flex; flex-direction: column; gap: 20px; }
+.footer { text-align: center; padding: 12px; font-size: 11px; color: var(--muted); border-top: 1px solid var(--border); }
+
+/* ── Buttons ─────────────────────────────────────────────────────────── */
+.btn {
+  padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid transparent; transition: opacity .15s;
+}
+.btn:disabled { opacity: .5; cursor: default; }
+.btn-seed    { background: #1f6feb; color: #fff; border-color: #388bfd; }
+.btn-seed:hover:not(:disabled) { background: #388bfd; }
+.btn-refresh { background: transparent; color: var(--accent); border-color: var(--border); }
+.btn-refresh:hover:not(:disabled) { background: var(--surface2); }
+.btn-close   { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+.btn-close:hover { color: var(--text); }
+
+/* ── Seed message ────────────────────────────────────────────────────── */
+.seed-msg { padding: 8px 24px; font-size: 12px; font-weight: 600; }
+.seed-ok  { background: #0d2a0d; color: var(--low); border-bottom: 1px solid #1a4a1a; }
+.seed-err { background: #2a0d0d; color: var(--critical); border-bottom: 1px solid #4a1a1a; }
+
+/* ── Stat cards ──────────────────────────────────────────────────────── */
+.stats-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.stat-card {
+  flex: 1; min-width: 110px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px; text-align: center;
+}
+.stat-value { font-size: 28px; font-weight: 700; line-height: 1; }
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 6px; text-transform: uppercase; letter-spacing: .5px; }
+.card-blue     { border-top: 3px solid var(--accent); }
+.card-critical { border-top: 3px solid var(--critical); }
+.card-high     { border-top: 3px solid var(--high); }
+.card-medium   { border-top: 3px solid var(--medium); }
+
+/* ── Panel ───────────────────────────────────────────────────────────── */
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); font-weight: 600; font-size: 13px; }
+.empty-state { padding: 48px; text-align: center; color: var(--muted); line-height: 2; }
+
+/* ── Incident table ──────────────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; }
+.inc-table { width: 100%; border-collapse: collapse; }
+.inc-table th { background: var(--surface2); padding: 8px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.inc-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.inc-row { cursor: pointer; transition: background .1s; }
+.inc-row:hover { background: var(--surface2); }
+.inc-row-selected { background: #1c2a3a !important; }
+.inc-id    { font-family: monospace; font-size: 12px; color: var(--accent); white-space: nowrap; }
+.inc-title { max-width: 260px; }
+
+/* ── Badges / pills ──────────────────────────────────────────────────── */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; }
+.badge-critical { background: #2d0000; color: var(--critical); border: 1px solid var(--critical); }
+.badge-high     { background: #2d1200; color: var(--high);     border: 1px solid var(--high); }
+.badge-medium   { background: #2d2500; color: var(--medium);   border: 1px solid var(--medium); }
+.badge-low      { background: #0d2a0d; color: var(--low);      border: 1px solid var(--low); }
+
+.sev { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+.sev-critical { background: #2d0000; color: var(--critical); }
+.sev-high     { background: #2d1200; color: var(--high); }
+.sev-medium   { background: #2d2500; color: var(--medium); }
+.sev-low      { background: #0d2a0d; color: var(--low); }
+
+.status-dot { color: var(--muted); font-size: 12px; }
+
+/* ── Risk bar ────────────────────────────────────────────────────────── */
+.risk-bar-track { position: relative; background: var(--surface2); border-radius: 3px; height: 14px; width: 100px; overflow: hidden; }
+.risk-bar-fill  { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; transition: width .3s; }
+.risk-bar-label { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 700; color: #fff; text-shadow: 0 0 4px #000; }
+
+/* ── MITRE tags ──────────────────────────────────────────────────────── */
+.mitre-tags { display: flex; flex-wrap: wrap; gap: 4px; }
+.mitre-tag { background: #1f2d3d; color: #79c0ff; border: 1px solid #1f6feb; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-family: monospace; cursor: default; }
+
+/* ── Muted ───────────────────────────────────────────────────────────── */
+.muted { color: var(--muted); }
+
+/* ── Detail panel ────────────────────────────────────────────────────── */
+.detail-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+
+.detail-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); gap: 12px; }
+.detail-title  { font-size: 15px; font-weight: 600; margin-left: 10px; }
+
+.detail-meta { display: flex; flex-wrap: wrap; gap: 0; border-bottom: 1px solid var(--border); }
+.meta-block  { padding: 12px 18px; border-right: 1px solid var(--border); }
+.meta-label  { display: block; font-size: 10px; text-transform: uppercase; color: var(--muted); letter-spacing: .5px; margin-bottom: 4px; }
+.meta-value  { font-weight: 600; font-size: 14px; }
+
+/* ── BLUF box ────────────────────────────────────────────────────────── */
+.bluf-box   { background: #1a0a0a; border-left: 4px solid var(--critical); padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.bluf-label { font-size: 11px; font-weight: 700; color: var(--critical); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.bluf-text  { font-size: 13px; line-height: 1.7; color: #ffd7d7; }
+
+/* ── Sections ────────────────────────────────────────────────────────── */
+.section        { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-title  { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); margin-bottom: 12px; }
+
+/* ── MITRE detail ────────────────────────────────────────────────────── */
+.mitre-detail-list { display: flex; flex-direction: column; gap: 8px; }
+.mitre-item { display: grid; grid-template-columns: 90px 1fr 120px; gap: 8px; align-items: start; padding: 8px; background: var(--surface2); border-radius: 6px; font-size: 12px; }
+.mitre-id   { font-family: monospace; color: var(--accent); font-weight: 700; }
+.mitre-name { font-weight: 600; }
+.mitre-tactic { color: var(--muted); font-size: 11px; text-align: right; }
+.mitre-desc { grid-column: 2 / 4; color: var(--muted); font-size: 11px; }
+
+/* ── Risk explanation ────────────────────────────────────────────────── */
+.explanation-grid { display: flex; flex-direction: column; gap: 2px; max-width: 340px; }
+.expl-row  { display: flex; justify-content: space-between; padding: 5px 8px; border-radius: 4px; font-size: 12px; }
+.expl-row:nth-child(odd) { background: var(--surface2); }
+.expl-row.total { background: #1f2d3d; font-weight: 700; margin-top: 4px; }
+.expl-label { color: var(--muted); }
+.expl-val   { font-weight: 600; color: var(--good); }
+.expl-val.neg { color: var(--critical); }
+.ti-badge   { display: inline-block; margin-top: 10px; background: #1a2a0a; color: var(--low); border: 1px solid var(--low); padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+
+/* ── Alert table ─────────────────────────────────────────────────────── */
+.alert-table-wrap { overflow-x: auto; margin-bottom: 16px; }
+.alert-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.alert-table th { background: var(--surface2); padding: 6px 8px; text-align: left; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+.alert-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: top; }
+.alert-table tr:last-child td { border-bottom: none; }
+.ts  { font-family: monospace; font-size: 10px; white-space: nowrap; color: var(--muted); }
+.ip  { font-family: monospace; font-size: 11px; }
+
+/* ── Evidence ────────────────────────────────────────────────────────── */
+.evidence-section { margin-top: 8px; }
+.evidence-item    { display: flex; gap: 8px; align-items: flex-start; padding: 6px 8px; border-radius: 4px; margin-bottom: 4px; background: var(--surface2); font-size: 11px; }
+.evidence-msg     { color: var(--muted); line-height: 1.5; flex: 1; }
+
+.loading, .error { padding: 32px; text-align: center; color: var(--muted); }
+.error { color: var(--critical); }

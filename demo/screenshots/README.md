@@ -1,26 +1,24 @@
-# Screenshots
+# Demo Screenshots
 
-Place your application screenshots in this folder.
+Place screenshots of the running ThreatLens dashboard in this folder.
 
-## Naming Convention
+## Required Screenshots (minimum 3)
 
-Name your screenshots sequentially so they appear in logical order:
+Name them sequentially:
 
-  01-landing-page.png       ← First thing a user sees
-  02-main-feature.png       ← Your primary feature in action
-  03-output-or-results.png  ← The result / value delivered
-  04-additional-feature.png ← Any other notable screen
+```
+01-dashboard-overview.png     ← Full dashboard after loading demo data
+02-critical-incident.png      ← Critical incident (INC-1) selected, showing BLUF
+03-incident-detail.png        ← Risk breakdown + MITRE techniques + correlated alerts
+04-bob-mcp-query.png          ← Optional: IBM Bob MCP query result
+```
 
-## Requirements
+## How to Capture
 
-- Minimum: 3 screenshots
-- Format: PNG or JPG
-- Show the application running with real (or realistic mock) data
-- Avoid screenshots of empty states or placeholder data
-- Captions are not required but appreciated
-
-## Tips
-
-- Use a consistent browser window size across all screenshots
-- Highlight key UI elements with arrows/circles if helpful (use any image editor)
-- Include a screenshot showing IBM technology integration if applicable
+1. Start backend: `uvicorn main:app --reload --port 8000` (from `src\backend\`)
+2. Start frontend: `npm run dev` (from `src\frontend\`)
+3. Open `http://localhost:5173`
+4. Click **⚡ Load Demo Data**
+5. Screenshot the overview (01)
+6. Click INC-1 (CRITICAL incident from 185.22.14.8)
+7. Screenshot the full detail panel (02, 03)
