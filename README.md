@@ -156,7 +156,7 @@ curl -X POST http://localhost:8000/api/demo/seed
 | Artifact | Link |
 |---|---|
 | 📹 Demo Video Round 1| [See demo/demo-video-link.txt](demo/demo-video-link.txt)|
-| 📹 Demo Video Round 1| [See demo/demo-video-link.txt](demo/Final Demo URL.txt) |
+| 📹 Demo Video Round 1| [See demo/demo-video-link.txt](demo/Final-Demo-URL.txt) |
 | 🌐 Live Demo | [See demo/live-demo-url.txt](demo/live-demo-url.txt) |
 | 🖼️ Screenshots | [See demo/screenshots/](demo/screenshots/) |
 
