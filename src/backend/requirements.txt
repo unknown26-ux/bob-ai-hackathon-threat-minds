@@ -5,3 +5,4 @@ fastapi==0.115.5
 uvicorn[standard]==0.32.1
 aiosqlite==0.20.0
 pydantic==2.10.3
+aiohttp>=3.9.0        # required by test_target_server.py (local load test target)

@@ -5,9 +5,12 @@ api/incidents.py — GET /api/incidents and GET /api/incidents/{id}
 import json
 from typing import Optional
 from fastapi import APIRouter, HTTPException
+from fastapi.responses import JSONResponse
 from database import get_db
 
 router = APIRouter(prefix="/api")
+
+_NO_CACHE = {"Cache-Control": "no-store, no-cache, must-revalidate"}
 
 
 def _parse_json_col(value):
@@ -48,15 +51,19 @@ async def list_incidents(
             d["mitre_techniques"]  = _parse_json_col(d.get("mitre_techniques"))
             d["score_explanation"] = _parse_json_col(d.get("score_explanation"))
             d["is_false_positive"] = bool(d.get("is_false_positive", 0))
+            if isinstance(d.get("score_explanation"), dict):
+                d["false_positive"] = d["score_explanation"].get("false_positive")
+            else:
+                d["false_positive"] = None
             result.append(d)
-        return result
+        return JSONResponse(content=result, headers=_NO_CACHE)
     finally:
         await db.close()
 
 
 @router.get("/incidents/{incident_id}")
 async def get_incident(incident_id: int):
-    """Single incident with all correlated alerts."""
+    """Single incident with all correlated alerts and generated intelligence."""
     db = await get_db()
     try:
         async with db.execute(
@@ -70,6 +77,19 @@ async def get_incident(incident_id: int):
         d["mitre_techniques"]  = _parse_json_col(d.get("mitre_techniques"))
         d["score_explanation"] = _parse_json_col(d.get("score_explanation"))
         d["is_false_positive"] = bool(d.get("is_false_positive", 0))
+        if isinstance(d.get("score_explanation"), dict):
+            d["false_positive"] = d["score_explanation"].get("false_positive")
+        else:
+            d["false_positive"] = None
+        # Parse stored intelligence JSON (may be None for older incidents)
+        raw_intel = d.get("intelligence")
+        if raw_intel and isinstance(raw_intel, str):
+            try:
+                d["intelligence"] = json.loads(raw_intel)
+            except Exception:
+                d["intelligence"] = None
+        else:
+            d["intelligence"] = None
 
         async with db.execute(
             "SELECT * FROM alerts WHERE incident_id = ? ORDER BY timestamp ASC",
@@ -78,6 +98,6 @@ async def get_incident(incident_id: int):
             alert_rows = await cur.fetchall()
 
         d["alerts"] = [dict(r) for r in alert_rows]
-        return d
+        return JSONResponse(content=d, headers=_NO_CACHE)
     finally:
         await db.close()

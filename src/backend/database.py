@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS incidents (
     score_explanation TEXT,
     mitre_techniques  TEXT,
     bluf_summary      TEXT,
+    intelligence      TEXT,
+    scenario          TEXT,
+    dataset_id        TEXT,
     first_seen        TEXT    NOT NULL DEFAULT (datetime('now')),
     last_seen         TEXT    NOT NULL DEFAULT (datetime('now'))
 );
@@ -47,9 +50,19 @@ CREATE TABLE IF NOT EXISTS alerts (
     confidence    INTEGER NOT NULL DEFAULT 50,
     indicator     TEXT,
     raw_message   TEXT    NOT NULL DEFAULT '',
+    fingerprint   TEXT,
     ingested_at   TEXT    NOT NULL DEFAULT (datetime('now'))
 );
 """
+
+# Indexes for fast correlation lookups
+CREATE_ALERTS_INDEXES = [
+    "CREATE INDEX IF NOT EXISTS idx_alerts_src_ip       ON alerts(src_ip);",
+    "CREATE INDEX IF NOT EXISTS idx_alerts_fingerprint  ON alerts(fingerprint);",
+    "CREATE INDEX IF NOT EXISTS idx_alerts_incident_id  ON alerts(incident_id);",
+    "CREATE INDEX IF NOT EXISTS idx_alerts_timestamp    ON alerts(timestamp);",
+    "CREATE INDEX IF NOT EXISTS idx_incidents_last_seen ON incidents(last_seen);",
+]
 
 
 async def get_db() -> aiosqlite.Connection:
@@ -64,11 +77,25 @@ async def get_db() -> aiosqlite.Connection:
 
 async def init_db() -> None:
     """
-    Create all tables if they do not already exist.
+    Create all tables and indexes if they do not already exist.
+    Also adds the fingerprint column to existing DBs via ALTER TABLE.
     Called once at application startup. Safe to call multiple times.
     """
     async with aiosqlite.connect(DB_PATH) as conn:
         # incidents first — alerts FK references it
         await conn.execute(CREATE_INCIDENTS_TABLE)
         await conn.execute(CREATE_ALERTS_TABLE)
+        # Safe migrations for existing databases
+        for col_sql in [
+            "ALTER TABLE alerts ADD COLUMN fingerprint TEXT",
+            "ALTER TABLE incidents ADD COLUMN intelligence TEXT",
+            "ALTER TABLE incidents ADD COLUMN scenario TEXT",
+            "ALTER TABLE incidents ADD COLUMN dataset_id TEXT",
+        ]:
+            try:
+                await conn.execute(col_sql)
+            except Exception:
+                pass  # column already exists
+        for idx_sql in CREATE_ALERTS_INDEXES:
+            await conn.execute(idx_sql)
         await conn.commit()
